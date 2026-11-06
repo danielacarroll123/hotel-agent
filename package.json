@@ -1,0 +1,15 @@
+{
+  "name": "hotel-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "eval": "node eval/run.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.6.0",
+    "csv-parse": "7.0.3",
+    "dotenv": "18.0.9"
+  }
+}

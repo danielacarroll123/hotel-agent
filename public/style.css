@@ -1,0 +1,147 @@
+:root {
+  --navy: #1b2a41;
+  --accent: #c8553d;
+  --line: #e7e7e7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #ffffff;
+  color: var(--navy);
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+h1 {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 0 0 24px;
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+/* Weather strip */
+.weather {
+  margin-bottom: 40px;
+}
+
+.weather-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.weather-day {
+  flex: 1 0 auto;
+  min-width: 76px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.weather-day .date {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.weather-day .temp {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 6px 0;
+}
+
+.weather-day .rain {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.weather-loading,
+.weather-error {
+  opacity: 0.7;
+  margin: 0;
+}
+
+/* Form */
+.intro {
+  margin: 0 0 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field span {
+  font-size: 0.9rem;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: var(--navy);
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+textarea {
+  resize: vertical;
+}
+
+.send {
+  align-self: flex-start;
+  font: inherit;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+}
+
+.send:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Reply */
+.reply {
+  margin-top: 28px;
+  white-space: pre-wrap;
+}
+
+.reply:not(:empty) {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}

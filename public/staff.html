@@ -1,0 +1,212 @@
+<!-- Staff page. No login yet: anyone who reaches /staff can read every request. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hotel Estrella: staff</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: system-ui, -apple-system, sans-serif;
+        color: #1b2a41;
+        font-size: 14px;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 12px;
+      }
+      .filters {
+        margin-bottom: 12px;
+      }
+      .filters button {
+        font: inherit;
+        padding: 4px 10px;
+        margin-right: 6px;
+        border: 1px solid #ccc;
+        background: #f4f4f4;
+        cursor: pointer;
+      }
+      .filters button.active {
+        background: #1b2a41;
+        color: #fff;
+        border-color: #1b2a41;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 6px 8px;
+        text-align: left;
+        vertical-align: top;
+        font-size: 13px;
+      }
+      th {
+        background: #f0f0f0;
+      }
+      tbody tr {
+        cursor: pointer;
+      }
+      tbody tr:hover {
+        background: #f8f8f8;
+      }
+      .trace-row td {
+        background: #fafafa;
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+      }
+      .empty {
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Requests</h1>
+
+    <div class="filters">
+      <button data-filter="all" class="active">All</button>
+      <button data-filter="ESCALATED">Escalated</button>
+      <button data-filter="ANSWERED">Answered</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Message</th>
+          <th>Department</th>
+          <th>Urgency</th>
+          <th>Status</th>
+          <th>Reply</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <script>
+      let requests = [];
+      let filter = "all";
+
+      async function load() {
+        const res = await fetch("/api/requests");
+        requests = await res.json();
+        render();
+      }
+
+      function render() {
+        const tbody = document.getElementById("rows");
+        tbody.innerHTML = "";
+
+        const shown = requests.filter(
+          (r) => filter === "all" || r.status === filter,
+        );
+
+        if (shown.length === 0) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 8;
+          td.className = "empty";
+          td.textContent = "No requests.";
+          tr.append(td);
+          tbody.append(tr);
+          return;
+        }
+
+        shown.forEach((r, index) => {
+          const tr = document.createElement("tr");
+          addCells(tr, [
+            r.time,
+            r.name,
+            r.email,
+            r.message,
+            r.department,
+            r.urgency,
+            r.status,
+            r.reply,
+          ]);
+          tr.addEventListener("click", () => toggleTrace(tr, r));
+          tbody.append(tr);
+        });
+      }
+
+      function addCells(tr, values) {
+        for (const value of values) {
+          const td = document.createElement("td");
+          td.textContent = value == null ? "" : String(value);
+          tr.append(td);
+        }
+      }
+
+      // Show or hide the trace for a request, one line per entry.
+      function toggleTrace(tr, request) {
+        const next = tr.nextElementSibling;
+        if (next && next.classList.contains("trace-row")) {
+          next.remove();
+          return;
+        }
+
+        const traceRow = document.createElement("tr");
+        traceRow.className = "trace-row";
+        const td = document.createElement("td");
+        td.colSpan = 8;
+
+        const trace = request.trace || [];
+        if (trace.length === 0) {
+          td.textContent = "No trace.";
+        } else {
+          td.textContent = trace.map(formatEntry).join("\n");
+        }
+
+        traceRow.append(td);
+        tr.after(traceRow);
+      }
+
+      function formatEntry(entry) {
+        if (entry.kind === "model") {
+          return (
+            "model step " +
+            entry.step +
+            " stop=" +
+            entry.stop_reason +
+            " asked_for_tool=" +
+            entry.asked_for_tool
+          );
+        }
+        if (entry.kind === "tool") {
+          return (
+            "tool " +
+            entry.name +
+            " args=" +
+            JSON.stringify(entry.arguments) +
+            " result=" +
+            entry.result
+          );
+        }
+        if (entry.kind === "answer") {
+          return "answer " + entry.text;
+        }
+        return JSON.stringify(entry);
+      }
+
+      document.querySelectorAll(".filters button").forEach((button) => {
+        button.addEventListener("click", () => {
+          filter = button.dataset.filter;
+          document
+            .querySelectorAll(".filters button")
+            .forEach((b) => b.classList.remove("active"));
+          button.classList.add("active");
+          render();
+        });
+      });
+
+      load();
+    </script>
+  </body>
+</html>
